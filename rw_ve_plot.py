@@ -44,11 +44,12 @@ def plot_vaccine_efficacy(pd_data, save_figure=False):
 
         # Plot
         for j in range(len(efficacy)):
-            if upper_bounds[j]-efficacy[j]>=0:
+            if upper_bounds[j]-efficacy[j] >= 0:
                 plt.errorbar(efficacy[j], j+index[-1], xerr=np.array([[efficacy[j]-lower_bounds[j],
-                                                                    upper_bounds[j]-efficacy[j]]]).T, fmt='o', color=palette[len(index)-1])
+                                                                       upper_bounds[j]-efficacy[j]]]).T, fmt='o', color=palette[len(index)-1])
             else:
-                plt.errorbar(efficacy[j], j+index[-1], xerr=np.array([[efficacy[j]-lower_bounds[j],0]]).T, fmt='o', color=palette[len(index)-1])
+                plt.errorbar(efficacy[j], j+index[-1], xerr=np.array(
+                    [[efficacy[j]-lower_bounds[j], 0]]).T, fmt='o', color=palette[len(index)-1])
             index_temp += 1
         index = np.append(index, index_temp)
     plt.plot([30, 30], [-1, index_temp], 'k--')
@@ -114,8 +115,10 @@ def plot_vaccine_efficacy_variants_group(pd_data, save_figure=False):
             # Plot
             for j in range(len(efficacy)):
                 # Fix the xerr negative value problem
-                xerr = np.array([[max(0, efficacy[j]-lower_bounds[j]), max(0, upper_bounds[j]-efficacy[j])]]).T
-                plt.errorbar(efficacy[j], j+index[-1], xerr=xerr, fmt='o', color=palette[len(index)-1])
+                xerr = np.array(
+                    [[max(0, efficacy[j]-lower_bounds[j]), max(0, upper_bounds[j]-efficacy[j])]]).T
+                plt.errorbar(efficacy[j], j+index[-1], xerr=xerr,
+                             fmt='o', color=palette[len(index)-1])
                 index_temp += 1
             index = np.append(index, index_temp)
 
@@ -210,8 +213,9 @@ def plot_vaccine_efficacy_ave_group(pd_data, save_figure=False):
             plt.savefig('RW2021_Efficacy_compare_{0}.pdf'.format(k))
         plt.show()
 
+
 def plot_vaccine_efficacy_ave_group_for_original(pd_data, save_figure=False):
-    pd_data = pd_data[pd_data.variant=='SARS-CoV-2']
+    pd_data = pd_data[pd_data.variant == 'SARS-CoV-2']
     palette = sb.color_palette(
         'Set1', n_colors=len(pd_data.vaccine.unique())+2)
     palette = palette[0:5] + palette[6:14] + palette[15::]
@@ -265,7 +269,7 @@ def plot_vaccine_efficacy_ave_group_for_original(pd_data, save_figure=False):
                                  xerr=np.array([[0, 0]]).T, fmt='o', color=palette[len(index)-1])
                 else:
                     plt.errorbar(efficacy[j], j+index[-1],
-                                xerr=np.array([[max(0, efficacy[j]-lower_bounds[j]),
+                                 xerr=np.array([[max(0, efficacy[j]-lower_bounds[j]),
                                                 max(0, upper_bounds[j]-efficacy[j])]]).T, fmt='o', color=palette[len(index)-1])
                 index_temp += 1
             index = np.append(index, index_temp)
@@ -348,12 +352,12 @@ def plot_vaccine_efficacy_ave_group_for_variants(pd_data, save_figure=False):
             for j in range(len(efficacy)):
                 print(efficacy[j])
                 print(lower_bounds[j], upper_bounds[j])
-                if lower_bounds[j]==0 and upper_bounds[j]==0:
+                if lower_bounds[j] == 0 and upper_bounds[j] == 0:
                     plt.errorbar(efficacy[j], j+index[-1],
                                  xerr=np.array([[0, 0]]).T, fmt='o', color=palette[len(index)-1])
                 else:
                     plt.errorbar(efficacy[j], j+index[-1],
-                                xerr=np.array([[max(0, efficacy[j]-lower_bounds[j]),
+                                 xerr=np.array([[max(0, efficacy[j]-lower_bounds[j]),
                                                 max(0, upper_bounds[j]-efficacy[j])]]).T, fmt='o', color=palette[len(index)-1])
                 index_temp += 1
             index = np.append(index, index_temp)
@@ -436,8 +440,10 @@ def plot_vaccine_efficacy_variants_and_ave_group(pd_data, save_figure=False):
 
                 # Plot
                 for j in range(len(efficacy)):
-                    xerr = np.array([[max(0, efficacy[j]-lower_bounds[j]), max(0, upper_bounds[j]-efficacy[j])]]).T
-                    plt.errorbar(efficacy[j], j+index[-1], xerr=xerr, fmt='o', color=palette[len(index)-1])
+                    xerr = np.array(
+                        [[max(0, efficacy[j]-lower_bounds[j]), max(0, upper_bounds[j]-efficacy[j])]]).T
+                    plt.errorbar(
+                        efficacy[j], j+index[-1], xerr=xerr, fmt='o', color=palette[len(index)-1])
                     index_temp += 1
                 index = np.append(index, index_temp)
             plt.plot([30, 30], [-1, index_temp], 'k--')
@@ -465,7 +471,7 @@ def plot_average_vaccine_efficacy(pd_data, save_figure=False):
         pd_data = pd_data[pd_data.vaccine == 'All vaccine']
     except:
         print('Missing All vaccine')
-    # Drop mixed variant 
+    # Drop mixed variant
     pd_data = pd_data[pd_data.variant != 'Mixed variants']
 
     palette = sb.color_palette(
@@ -473,8 +479,9 @@ def plot_average_vaccine_efficacy(pd_data, save_figure=False):
     palette = palette[0:5] + palette[6:14] + palette[15::]
     index = np.arange(len(pd_data))
     # endpoint_unique = np.sort(pd_data.ave.unique())
-    endpoint_unique = np.array(['Asymptomatic', 'Symptomatic', 'Moderate', 'Severe', 'Critical', 'Death'])
-    
+    endpoint_unique = np.array(
+        ['Asymptomatic', 'Symptomatic', 'Moderate', 'Severe', 'Critical', 'Death'])
+
     # Forcing bars distance the same
     plt.figure(figsize=(10, len(pd_data.ave)*0.35))
     for i, endpoint in enumerate(endpoint_unique):
@@ -515,7 +522,8 @@ def plot_average_vaccine_efficacy(pd_data, save_figure=False):
     plt.plot([50, 50], [-1, index[-1]], 'k--')
     plt.xlabel('Efficacy (%)', fontsize=20)
     plt.xticks(np.arange(0, 110, 10))
-    endpoint_y = ['Asymptomatic (3)', 'Symptomatic (16)', 'Moderate (4)', 'Severe (14)', 'Critical (4)', 'Death (4)']
+    endpoint_y = ['Asymptomatic (3)', 'Symptomatic (16)',
+                  'Moderate (4)', 'Severe (14)', 'Critical (4)', 'Death (4)']
     plt.yticks(index, endpoint_y, fontsize=20)
     plt.ylim([-1, index[-1]+0.1])
     plt.xlim([0, 100])
