@@ -4,20 +4,42 @@ import matplotlib.pyplot as plt
 
 
 def plot_vaccine_efficacy(pd_data, save_figure=False):
-    # plot_vaccine_efficacy_variant_group: Plot vaccine plots grouping by variants type.
+    """
+    This function plots the vaccine efficacy data for different vaccines grouping by variants type.
 
-    # Initializatoin
-    palette = sb.color_palette(
-        'Set1', n_colors=len(pd_data.vaccine.unique())+2)
+    Parameters
+    ----------
+    pd_data : pandas.DataFrame
+        The DataFrame containing the vaccine efficacy data.
+    save_figure : bool, optional
+        Whether to save the generated figure. Default is False.
+
+    Returns
+    -------
+    None
+
+    """
+
+    # Set color palette for the plot
+    palette = sb.color_palette('Set1', n_colors=len(pd_data.vaccine.unique())+2)
     palette = palette[0:5] + palette[6:14] + palette[15::]
+    
+    # Get unique vaccine names and sort them
     vaccine_name_unique = np.sort(pd_data.vaccine.unique())
+    
+    # Initialize index and index_temp variables
     index = np.array([0])
     index_temp = 0
+    
+    # Set figure size based on the number of vaccines
     plt.figure(figsize=(10, len(pd_data)*0.35))
 
-    # Plot
+    # Iterate over each unique vaccine
     for i in vaccine_name_unique:
+        # Get data for the current vaccine
         vaccine_data = pd_data[pd_data.vaccine == i]
+        
+        # Extract efficacy, lower bounds, and upper bounds from the data
         try:
             efficacy = vaccine_data['vaccine_efficacy']
         except:
@@ -31,18 +53,18 @@ def plot_vaccine_efficacy(pd_data, save_figure=False):
         except:
             upper_bounds = vaccine_data['upper']
 
-        # Replace 'X' in the lower and upper bound to the efficacy value
+        # Replace 'X' in the lower and upper bounds with the efficacy value
         lower_bounds[lower_bounds.index[lower_bounds == 'X'].tolist()] = \
             efficacy[lower_bounds.index[lower_bounds == 'X'].tolist()]
         upper_bounds[upper_bounds.index[upper_bounds == 'X'].tolist()] = \
             efficacy[upper_bounds.index[upper_bounds == 'X'].tolist()]
 
-        # To numpy
+        # Convert efficacy, lower_bounds, and upper_bounds to numpy arrays
         efficacy = efficacy.to_numpy()
         lower_bounds = lower_bounds.to_numpy()
         upper_bounds = upper_bounds.to_numpy()
 
-        # Plot
+        # Plot error bars for each vaccine efficacy data point
         for j in range(len(efficacy)):
             if upper_bounds[j]-efficacy[j]>=0:
                 plt.errorbar(efficacy[j], j+index[-1], xerr=np.array([[efficacy[j]-lower_bounds[j],
@@ -51,8 +73,12 @@ def plot_vaccine_efficacy(pd_data, save_figure=False):
                 plt.errorbar(efficacy[j], j+index[-1], xerr=np.array([[efficacy[j]-lower_bounds[j],0]]).T, fmt='o', color=palette[len(index)-1])
             index_temp += 1
         index = np.append(index, index_temp)
+
+    # Add vertical lines at 30% and 50% efficacy
     plt.plot([30, 30], [-1, index_temp], 'k--')
     plt.plot([50, 50], [-1, index_temp], 'k--')
+    
+    # Set labels, ticks, and limits for the plot
     plt.xlabel('Efficacy (%)', fontsize=20)
     plt.yticks(index[0:-1], vaccine_name_unique, fontsize=20)
     plt.xticks(fontsize=20)
@@ -60,9 +86,12 @@ def plot_vaccine_efficacy(pd_data, save_figure=False):
     plt.ylim([-1, index_temp])
     plt.gca().invert_yaxis()
     plt.gca().yaxis.grid()
+    
+    # Save the figure if save_figure is True
     if save_figure == True:
-        plt.savefig('RW2021_Efficacy_compare.pdf',
-                    format='pdf', bbox_inches='tight')
+        plt.savefig('RW2021_Efficacy_compare.pdf', format='pdf', bbox_inches='tight')
+    
+    # Display the plot
     plt.show()
 
 
