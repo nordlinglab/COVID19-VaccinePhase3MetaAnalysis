@@ -28,6 +28,7 @@ Employing statistical methods such as relative risk and Poisson regression with 
 
 2. **vaccine_details_plot.ipynb**
    - **Description**: A Jupyter notebook that visualizes vaccine efficacy details using various plotting functions from `rw_ve_plot.py`.
+   - **How to Run**: Open this notebook in Jupyter or VS Code after setting up the environment. Ensure the `vaccine_analysis` kernel is selected in Jupyter to run notebooks without issues.
 
 3. **ve_recalculate.ipynb**
    - **Description**: Recalculates vaccine efficacy and its confidence intervals using data from `vaccine_details.xlsx`.
