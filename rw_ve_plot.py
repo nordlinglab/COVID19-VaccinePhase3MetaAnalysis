@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+
+
+
 def plot_vaccine_efficacy(pd_data, save_figure=False):
     """
     This function plots the vaccine efficacy data for different vaccines grouping by variants type.
