@@ -443,7 +443,21 @@ def distance_between_VE_to_threshold(paper_vaccine_efficacy, paper_ve_methods,
     plt.axhline(y=50, color='black', linestyle='--')
     plt.axhline(y=30, color='black', linestyle='--')
     sns.violinplot(x='Method', y='Efficacy Difference', hue='Type',
-                   data=data, inner=None,  palette=['#2ca25f', '#e5f5f9'], split=True, cut=0)
+                   data=data, inner='quart', palette=['#2ca25f', '#e5f5f9'], split=True, cut=0)
+
+    means = data.groupby(['Method', 'Type'])['Efficacy Difference'].mean()
+    
+    idx = 0
+    for i, mean in enumerate(means):
+        if i == 0:
+            plt.plot(idx-0.15, mean, '^', color='k', alpha=0.5, label='Mean')
+        elif i % 2 == 0:
+            plt.plot(idx-0.15, mean, '^', color='k', alpha=0.5)
+        else:
+            plt.plot(idx+0.15, mean, '^', color='k', alpha=0.5)
+            idx += 1
+        
+    
     # for ind, violin in enumerate(ax.findobj(PolyCollection)):
     #     rgb = to_rgb(palette[ind // 2])
     #     if ind % 2 != 0:
@@ -459,7 +473,7 @@ def distance_between_VE_to_threshold(paper_vaccine_efficacy, paper_ve_methods,
     plt.ylim(20, 100)
     plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
     plt.grid()
-    plt.legend(loc='lower right')
+    plt.legend(loc='lower right', numpoints=1)
 
     if save_fig:
         plt.savefig('vaccine_efficacy_threshold.pdf')
@@ -502,6 +516,7 @@ def distance_between_lb_to_threshold(paper_vaccine_efficacy, paper_lower_bound,
     })
     data = data.sort_values(by='CI_method')
 
+
     # Plotting
     fig, ax = plt.subplots(figsize=(16, 7))
     plt.axhline(y=50, color='black', linestyle='--')
@@ -524,6 +539,18 @@ def distance_between_lb_to_threshold(paper_vaccine_efficacy, paper_lower_bound,
     plt.xticks(np.arange(0, 13, 1), xticks_tmp)
     plt.grid()
 
+    means = data.groupby(['CI_method', 'type'])['lb_difference'].mean()
+    
+    idx = 0
+    for i, mean in enumerate(means):
+        if i == 0:
+            plt.plot(idx-0.15, mean, '^', color='k', alpha=0.5, label='Mean')
+        elif i % 2 == 0:
+            plt.plot(idx-0.15, mean, '^', color='k', alpha=0.5)
+        else:
+            plt.plot(idx+0.15, mean, '^', color='k', alpha=0.5)
+            idx += 1
+    plt.legend(loc='lower right', numpoints=1)
     if save_fig:
         plt.savefig('lb_threshold.pdf')
     plt.show()
