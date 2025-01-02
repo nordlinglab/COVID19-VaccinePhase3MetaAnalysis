@@ -1,10 +1,15 @@
 import seaborn as sns
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.collections import PolyCollection
+from matplotlib.colors import to_rgb
 
 ##############################
 # Recalculate vaccine efficacy
 ##############################
+
+
 def plot_compare_reproduced_vaccine_efficacy_scalar_plot(paper_vaccine_efficacy, paper_lower_bound,
                                                          paper_upper_bound, paper_ve_methods, paper_ci_methods,
                                                          RW_vaccine_efficacy, RW_lower_bound, RW_upper_bound, save_fig=True):
@@ -17,9 +22,9 @@ def plot_compare_reproduced_vaccine_efficacy_scalar_plot(paper_vaccine_efficacy,
             x_error = np.array([[paper_vaccine_efficacy[i]-paper_lower_bound[i],
                                 paper_upper_bound[i]-paper_vaccine_efficacy[i]]]).T
 
-        x_error[x_error<0] = 0
+        x_error[x_error < 0] = 0
 
-        if RW_lower_bound[i]==0 and RW_upper_bound[i]==0:
+        if RW_lower_bound[i] == 0 and RW_upper_bound[i] == 0:
             y_error = np.array([[0, 0]]).T
         else:
             y_error = np.array([[RW_vaccine_efficacy[i]-RW_lower_bound[i],
@@ -30,7 +35,8 @@ def plot_compare_reproduced_vaccine_efficacy_scalar_plot(paper_vaccine_efficacy,
     plt.plot([0, 105], [0, 105], '--k')
     plt.xlabel(
         'Reported vaccine efficacy with $95\%$ CIs in the original study')
-    plt.ylabel('Vaccine efficacy with $95\%$ CIs based on relative risk and \n Poisson regression with robust error')
+    plt.ylabel(
+        'Vaccine efficacy with $95\%$ CIs based on relative risk and \n Poisson regression with robust error')
     plt.grid()
     plt.xlim(0, 105)
     plt.ylim(0, 105)
@@ -38,10 +44,13 @@ def plot_compare_reproduced_vaccine_efficacy_scalar_plot(paper_vaccine_efficacy,
     if save_fig == True:
         plt.savefig('RW_vaccine_efficacy_reproduction.pdf')
 
+
 def legend_without_duplicate_labels(ax):
     handles, labels = ax.get_legend_handles_labels()
-    unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if l not in labels[:i]]
+    unique = [(h, l) for i, (h, l) in enumerate(
+        zip(handles, labels)) if l not in labels[:i]]
     ax.legend(*zip(*unique), numpoints=1)
+
 
 def plot_compare_reproduced_vaccine_efficacy_error_bar_plot(paper_vaccine_efficacy, paper_lower_bound,
                                                             paper_upper_bound, paper_ve_methods, paper_ci_methods,
@@ -93,30 +102,30 @@ def plot_compare_reproduced_vaccine_efficacy_error_bar_plot(paper_vaccine_effica
         upper_bounds = np.array([paper_upper_bound[i], RW_upper_bound[i]])
         paper_ve_method = paper_ve_methods[i]
         paper_ci_method = paper_ci_methods[i]
-        
-        if lower_bounds[0]==0 and upper_bounds[0]==0:
+
+        if lower_bounds[0] == 0 and upper_bounds[0] == 0:
             xerr0 = np.array([[0, 0]]).T
         else:
             xerr0 = np.array([[paper_vaccine_efficacy[i]-paper_lower_bound[i],
                                paper_upper_bound[i]-paper_vaccine_efficacy[i]]]).T
 
-        xerr0[xerr0<0] = 0
-        if lower_bounds[1]==0 and upper_bounds[1]==0:
+        xerr0[xerr0 < 0] = 0
+        if lower_bounds[1] == 0 and upper_bounds[1] == 0:
             xerr1 = np.array([[0, 0]]).T
         else:
             xerr1 = np.array([[RW_vaccine_efficacy[i]-RW_lower_bound[i],
                                RW_upper_bound[i]-RW_vaccine_efficacy[i]]]).T
-        
+
         line1 = ax.errorbar(efficacy[0], index, xerr=xerr0,
-                                                fmt=ve_method_markers_dict[paper_ve_method],
-                                                ms=5, ecolor=ci_method_color_dict[paper_ci_method], 
-                                                markerfacecolor=ve_method_color_dict[paper_ve_method], 
-                                                label=paper_ve_method+'\n'+paper_ci_method)
-        line2 = ax.errorbar(efficacy[1], index+1, xerr=xerr1, 
-                                                    fmt=ve_method_markers_dict['Relative risk'], 
-                                                    ms=5, 
-                                                    ecolor=ci_method_color_dict['Poisson regression with robust error variance'], 
-                                                    markerfacecolor=ve_method_color_dict['Relative risk'])
+                            fmt=ve_method_markers_dict[paper_ve_method],
+                            ms=5, ecolor=ci_method_color_dict[paper_ci_method],
+                            markerfacecolor=ve_method_color_dict[paper_ve_method],
+                            label=paper_ve_method+'\n'+paper_ci_method)
+        line2 = ax.errorbar(efficacy[1], index+1, xerr=xerr1,
+                            fmt=ve_method_markers_dict['Relative risk'],
+                            ms=5,
+                            ecolor=ci_method_color_dict['Poisson regression with robust error variance'],
+                            markerfacecolor=ve_method_color_dict['Relative risk'])
         index += 4
         index_array = np.append(index_array, index)
     handles, labels = ax.get_legend_handles_labels()
@@ -132,26 +141,28 @@ def plot_compare_reproduced_vaccine_efficacy_error_bar_plot(paper_vaccine_effica
     plt.ylim([-1, index])
     plt.xlim([0, 200])
     plt.gca().invert_yaxis()
-    plt.gca().yaxis.grid()
+    # plt.gca().yaxis.grid()
     plt.gca().xaxis.grid()
+    plt.plot([30, 30], [-1, index], 'k--')
+    plt.plot([50, 50], [-1, index], 'k--')
     plt.xlabel('Vaccine efficacy with $95\%$ CIs', fontsize=20)
 
     if save_fig == True:
         plt.savefig('RW_vaccine_efficacy_reproduction_error_bar.pdf')
+
 
 def different_between_efficacy(paper_vaccine_efficacy, paper_ve_methods, RW_vaccine_efficacy, save_fig=True):
     # Initialization
     palette = sns.color_palette(
         'Set1', n_colors=len(np.unique(paper_ve_methods)))
 
-    
     # Remove outliers
     efficacy_remove_map = RW_vaccine_efficacy != 100
     remove_map = efficacy_remove_map
     paper_vaccine_efficacy = paper_vaccine_efficacy[remove_map]
     paper_ve_methods = paper_ve_methods[remove_map]
     RW_vaccine_efficacy = RW_vaccine_efficacy[remove_map]
-    
+
     # Efficacy
     fig = plt.figure(figsize=(8, 5))
     unique_paper_ve_methods = np.unique(paper_ve_methods)
@@ -163,24 +174,28 @@ def different_between_efficacy(paper_vaccine_efficacy, paper_ve_methods, RW_vacc
         efficacy_difference = paper_vaccine_efficacy_tmp-RW_vaccine_efficacy_tmp
         efficacy_difference_dict[paper_ve_method] = efficacy_difference
 
-    labels, data = [*zip(*efficacy_difference_dict.items())]  # 'transpose' items to parallel key, value lists
+    # 'transpose' items to parallel key, value lists
+    labels, data = [*zip(*efficacy_difference_dict.items())]
     sns.violinplot(data, inner=None, cut=0, palette=palette)
     sns.swarmplot(data=data, color='black', alpha=0.5, size=4)
     plt.fill_betweenx(y=[-4.1, 6.1], x1=-0.5, x2=2.5, color='gray', alpha=0.2)
     plt.xlim(-0.5, 4.5)
     plt.ylim([-4.1, 6.1])
     plt.xticks(range(0, len(labels)), labels)
-    plt.xticks(rotation = 15, ha='right')
+    plt.xticks(rotation=15, ha='right')
+    plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
     plt.grid()
-    plt.ylabel('Difference between original vaccine efficacy and \n vaccine efficacy estimated by relative risk (%)')
+    plt.ylabel(
+        'Difference between original vaccine efficacy and \n vaccine efficacy estimated by relative risk (%)')
     if save_fig == True:
         plt.savefig('Difference_efficacy_RW2022.pdf')
     return fig
 
+
 def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
-                                             paper_upper_bound, paper_ve_methods, paper_ci_methods,
-                                             RW_vaccine_efficacy, RW_lower_bound, RW_upper_bound, 
-                                             save_fig=True):
+                        paper_upper_bound, paper_ve_methods, paper_ci_methods,
+                        RW_vaccine_efficacy, RW_lower_bound, RW_upper_bound,
+                        save_fig=True):
     # Initialization
     palette_all = sns.color_palette(
         'Set1', n_colors=len(paper_vaccine_efficacy)+2)
@@ -192,8 +207,8 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
     # Confidence interval and color
     ci_method_color_dict = dict(
         zip(np.unique(paper_ci_methods), palette[0:len(np.unique(paper_ci_methods))]))
-    
-    # Sort 
+
+    # Sort
     sort_index = np.argsort(paper_ci_methods)
     paper_vaccine_efficacy = paper_vaccine_efficacy[sort_index]
     paper_lower_bound = paper_lower_bound[sort_index]
@@ -203,14 +218,15 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
     RW_vaccine_efficacy = RW_vaccine_efficacy[sort_index]
     RW_lower_bound = RW_lower_bound[sort_index]
     RW_upper_bound = RW_upper_bound[sort_index]
-    
+
     ###########################
     # Time to event lower bound
     ###########################
     time_to_event = True
     # VE method map that based on time to event involved in the estimation method
     if time_to_event:
-        ve_method_list = ['Attack rate', 'Hazard ratio', 'Incidence rate ratio']
+        ve_method_list = ['Attack rate',
+                          'Hazard ratio', 'Incidence rate ratio']
     else:
         ve_method_list = ['Odds ratio', 'Relative risk']
     ve_method_map = np.isin(paper_ve_methods, ve_method_list)
@@ -230,7 +246,7 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
     RW_upper_bound_tmp = RW_upper_bound[remove_map]
 
     # Lower
-    fig1 = plt.figure(figsize=(10, 5))
+    fig1 = fig, ax = plt.subplots(figsize=(9, 7))
     paper_lower_lengths = paper_vaccine_efficacy_tmp - paper_lower_bound_tmp
     RW_lower_lengths = RW_vaccine_efficacy_tmp - RW_lower_bound_tmp
     unique_paper_ci_methods = np.unique(paper_ci_methods_tmp)
@@ -242,14 +258,15 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
         lower_difference = paper_lower_lengths_tmp - RW_lower_lengths_tmp
         lower_difference_dict[paper_ci_method] = lower_difference
     shaded_x_range = len(lower_difference_dict)
-    
+
     ##############################
     # No time to event lower bound
     ##############################
     time_to_event = False
     # VE method map that based on time to event involved in the estimation method
     if time_to_event:
-        ve_method_list = ['Attack rate', 'Hazard ratio', 'Incidence rate ratio']
+        ve_method_list = ['Attack rate',
+                          'Hazard ratio', 'Incidence rate ratio']
     else:
         ve_method_list = ['Odds ratio', 'Relative risk']
     ve_method_map = np.isin(paper_ve_methods, ve_method_list)
@@ -277,20 +294,24 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
             paper_ci_method = paper_ci_method+'*'
         lower_difference_dict[paper_ci_method] = lower_difference
 
-    labels, data = [*zip(*lower_difference_dict.items())]  # 'transpose' items to parallel key, value lists
+    # 'transpose' items to parallel key, value lists
+    labels, data = [*zip(*lower_difference_dict.items())]
     labels = [label.replace('*', '') for label in labels]
-    color_palette = [ci_method_color_dict[label.strip('*')] for label in labels]
+    color_palette = [
+        ci_method_color_dict[label.strip('*')] for label in labels]
     sns.violinplot(data, inner=None, cut=0, palette=color_palette)
     sns.swarmplot(data=data, color='black', alpha=0.5, size=6)
     plt.xticks(range(0, len(labels)), labels)
-    plt.xticks(rotation = 30, ha='right')
+    plt.xticks(rotation=30, ha='right')
     plt.grid()
     plt.ylabel('Difference between original lower bound \n and lower bound estimated by \n Poisson regression with robust error variance (%)')
     plt.ylim([-10, 10])
     # if time_to_event:
     #     plt.fill_between(np.arange(-0.5, len(labels)+0.5), -10, 10, color='gray', alpha=0.2)
     plt.xlim(-0.5, len(labels)-0.5)
-    plt.fill_between(np.arange(-0.5, shaded_x_range+0.5), -10, 10, color='gray', alpha=0.2)
+    plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
+    plt.fill_between(np.arange(-0.5, shaded_x_range+0.5), -
+                     10, 10, color='gray', alpha=0.2)
     if save_fig == True:
         plt.savefig(f'Difference_lower_RW2022.pdf')
 
@@ -300,7 +321,8 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
     time_to_event = True
     # VE method map that based on time to event involved in the estimation method
     if time_to_event:
-        ve_method_list = ['Attack rate', 'Hazard ratio', 'Incidence rate ratio']
+        ve_method_list = ['Attack rate',
+                          'Hazard ratio', 'Incidence rate ratio']
     else:
         ve_method_list = ['Odds ratio', 'Relative risk']
     ve_method_map = np.isin(paper_ve_methods, ve_method_list)
@@ -332,14 +354,15 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
         upper_difference = paper_upper_lengths_tmp - RW_upper_lengths_tmp
         upper_difference_dict[paper_ci_method] = upper_difference
     shaded_x_range = len(upper_difference_dict)
-    
+
     ##############################
     # No time to event upper bound
     ##############################
     time_to_event = False
     # VE method map that based on time to event involved in the estimation method
     if time_to_event:
-        ve_method_list = ['Attack rate', 'Hazard ratio', 'Incidence rate ratio']
+        ve_method_list = ['Attack rate',
+                          'Hazard ratio', 'Incidence rate ratio']
     else:
         ve_method_list = ['Odds ratio', 'Relative risk']
     ve_method_map = np.isin(paper_ve_methods, ve_method_list)
@@ -367,26 +390,150 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
             paper_ci_method = paper_ci_method+'*'
         upper_difference_dict[paper_ci_method] = upper_difference
 
-    labels, data = [*zip(*upper_difference_dict.items())]  # 'transpose' items to parallel key, value lists
+    # 'transpose' items to parallel key, value lists
+    labels, data = [*zip(*upper_difference_dict.items())]
     labels = [label.replace('*', '') for label in labels]
-    color_palette = [ci_method_color_dict[label.strip('*')] for label in labels]
+    color_palette = [
+        ci_method_color_dict[label.strip('*')] for label in labels]
     sns.violinplot(data, inner=None, cut=0, palette=color_palette)
     sns.swarmplot(data=data, color='black', alpha=0.5, size=6)
     plt.xticks(range(0, len(labels)), labels)
-    plt.xticks(rotation = 30, ha='right')
+    plt.xticks(rotation=30, ha='right')
     plt.grid()
     plt.ylabel('Difference between original upper bound \n and upper bound estimated by \n Poisson regression with robust error variance (%)')
     plt.ylim([-10, 10])
     # if time_to_event:
     #     plt.fill_between(np.arange(-0.5, len(labels)+0.5), -10, 10, color='gray', alpha=0.2)
     plt.xlim(-0.5, len(labels)-0.5)
-    plt.fill_between(np.arange(-0.5, shaded_x_range+0.5), -10, 10, color='gray', alpha=0.2)
+    plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
+    plt.fill_between(np.arange(-0.5, shaded_x_range+0.5), -
+                     10, 10, color='gray', alpha=0.2)
     if save_fig == True:
         plt.savefig(f'Difference_upper_RW2022.pdf')
+
+
+def distance_between_VE_to_threshold(paper_vaccine_efficacy, paper_ve_methods,
+                                     RW_vaccine_efficacy, save_fig=True):
+    # Difference between the VE to the 50% threshold
+    # Set the threshold
+    threshold = 0
+    palette = sns.color_palette(
+        'Set1', n_colors=len(np.unique(paper_ve_methods)))
+
+    # Remove outliers
+    remove_map = RW_vaccine_efficacy != 100
+    paper_vaccine_efficacy = paper_vaccine_efficacy[remove_map]
+    paper_ve_methods = paper_ve_methods[remove_map]
+    RW_vaccine_efficacy = RW_vaccine_efficacy[remove_map]
+
+    # Calculate differences from the threshold
+    efficacy_difference = paper_vaccine_efficacy - threshold
+    recalculated_efficacy_difference = RW_vaccine_efficacy - threshold
+
+    # Create DataFrame for plotting
+    data = pd.DataFrame({
+        'Efficacy Difference': np.concatenate([efficacy_difference, recalculated_efficacy_difference]),
+        'Method': np.concatenate([paper_ve_methods, paper_ve_methods]),
+        'Type': ['Original']*len(efficacy_difference) + ['Recalculated']*len(recalculated_efficacy_difference)
+    })
+    data = data.sort_values(by='Method')
+
+    # Plotting
+    fig, ax = plt.subplots(figsize=(9, 7))
+    plt.axhline(y=50, color='black', linestyle='--')
+    plt.axhline(y=30, color='black', linestyle='--')
+    sns.violinplot(x='Method', y='Efficacy Difference', hue='Type',
+                   data=data, inner=None,  palette=['#2ca25f', '#e5f5f9'], split=True, cut=0)
+    # for ind, violin in enumerate(ax.findobj(PolyCollection)):
+    #     rgb = to_rgb(palette[ind // 2])
+    #     if ind % 2 != 0:
+    #         rgb = 0.5 + 0.5 * np.array(rgb)  # make whiter
+    #     violin.set_facecolor(rgb)
+    sns.swarmplot(x='Method', y='Efficacy Difference', data=data,
+                  color='black', alpha=0.5, size=4)
+    plt.xticks(rotation=15, ha='right')
+    plt.xlabel('')
+    plt.ylabel('Vaccine efficacy (%)')
+    plt.fill_betweenx(y=[0, 100], x1=-0.5, x2=2.5, color='gray', alpha=0.2)
+    plt.xlim(-0.5, 4.5)
+    plt.ylim(20, 100)
+    plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
+    plt.grid()
+    plt.legend(loc='lower right')
+
+    if save_fig:
+        plt.savefig('vaccine_efficacy_threshold.pdf')
+    plt.show()
+
+    return (ax)
+
+
+def distance_between_lb_to_threshold(paper_vaccine_efficacy, paper_lower_bound,
+                                     paper_upper_bound, paper_ve_methods, paper_ci_methods,
+                                     RW_vaccine_efficacy, RW_lower_bound, RW_upper_bound,
+                                     save_fig=False):
+    # Remove our 100% efficacy data and paper's 0 CI
+    efficacy_remove_map = RW_vaccine_efficacy != 100
+    ci_remove_map = paper_lower_bound != 0
+    remove_map = efficacy_remove_map & ci_remove_map
+    paper_vaccine_efficacy_tmp = paper_vaccine_efficacy[remove_map]
+    paper_lower_bound_tmp = paper_lower_bound[remove_map]
+    paper_upper_bound_tmp = paper_upper_bound[remove_map]
+    paper_ve_methods_tmp = paper_ve_methods[remove_map]
+    paper_ci_methods_tmp = paper_ci_methods[remove_map]
+    RW_vaccine_efficacy_tmp = RW_vaccine_efficacy[remove_map]
+    RW_lower_bound_tmp = RW_lower_bound[remove_map]
+    RW_upper_bound_tmp = RW_upper_bound[remove_map]
+
+    paper_lower_difference = np.array(paper_lower_bound_tmp, dtype=float)
+    RW_lower_difference = RW_lower_bound_tmp
+    ci_method_array = paper_ci_methods_tmp
+    ve_method_array = paper_ve_methods_tmp
+    time_to_event = np.ones(len(paper_vaccine_efficacy_tmp))*False
+    for i in range(len(ve_method_array)):
+        if ve_method_array[i] == 'Odds ratio' or ve_method_array[i] == 'Relative risk':
+            # Forcing this to be sorted to the end
+            ci_method_array[i] = 'z'+ci_method_array[i]
+
+    data = pd.DataFrame({
+        'lb_difference': np.concatenate([paper_lower_difference, RW_lower_difference]),
+        'CI_method': np.concatenate([ci_method_array, ci_method_array]),
+        'type': ['Original']*len(paper_lower_difference) + ['Recalculated']*len(RW_lower_difference)
+    })
+    data = data.sort_values(by='CI_method')
+
+    # Plotting
+    fig, ax = plt.subplots(figsize=(16, 7))
+    plt.axhline(y=50, color='black', linestyle='--')
+    plt.axhline(y=30, color='black', linestyle='--')
+    sns.violinplot(x='CI_method', y='lb_difference', hue='type',
+                   data=data, inner=None,  palette=['#2ca25f', '#e5f5f9'], split=True, cut=0)
+    sns.swarmplot(x='CI_method', y='lb_difference', data=data,
+                  color='black', alpha=0.5, size=4)
+    plt.fill_betweenx(y=[-10, 100], x1=-0.5, x2=8.5, color='gray', alpha=0.2)
+    plt.ylim(0, 100)
+    plt.xlim(-0.5, 12.5)
+    plt.xticks(rotation=30, ha='right')
+    plt.yticks(np.arange(0, 101, 10))
+    plt.ylabel('Vaccine efficacy lower bound (%)', fontsize=16)
+    plt.xlabel('')
+    xticks_tmp = data['CI_method'].unique()
+    for i in range(len(xticks_tmp)):
+        if xticks_tmp[i][0] == 'z':
+            xticks_tmp[i] = xticks_tmp[i][1:]
+    plt.xticks(np.arange(0, 13, 1), xticks_tmp)
+    plt.grid()
+
+    if save_fig:
+        plt.savefig('lb_threshold.pdf')
+    plt.show()
+
 
 ############################
 # visualize vaccine efficacy
 ############################
+
+
 def plot_vaccine_efficacy(pd_data, save_figure=False):
     """
     This function plots the vaccine efficacy data for different vaccines grouping by variants type.
@@ -405,16 +552,17 @@ def plot_vaccine_efficacy(pd_data, save_figure=False):
     """
 
     # Set color palette for the plot
-    palette = sns.color_palette('Set1', n_colors=len(pd_data.vaccine.unique())+2)
+    palette = sns.color_palette(
+        'Set1', n_colors=len(pd_data.vaccine.unique())+2)
     palette = palette[0:5] + palette[6:14] + palette[15::]
-    
+
     # Get unique vaccine names and sort them
     vaccine_name_unique = np.sort(pd_data.vaccine.unique())
-    
+
     # Initialize index and index_temp variables
     index = np.array([0])
     index_temp = 0
-    
+
     # Set figure size based on the number of vaccines
     plt.figure(figsize=(10, len(pd_data)*0.35))
 
@@ -422,7 +570,7 @@ def plot_vaccine_efficacy(pd_data, save_figure=False):
     for i in vaccine_name_unique:
         # Get data for the current vaccine
         vaccine_data = pd_data[pd_data.vaccine == i]
-        
+
         # Extract efficacy, lower bounds, and upper bounds from the data
         try:
             efficacy = vaccine_data['vaccine_efficacy']
@@ -462,7 +610,7 @@ def plot_vaccine_efficacy(pd_data, save_figure=False):
     # Add vertical lines at 30% and 50% efficacy
     plt.plot([30, 30], [-1, index_temp], 'k--')
     plt.plot([50, 50], [-1, index_temp], 'k--')
-    
+
     # Set labels, ticks, and limits for the plot
     plt.xlabel('Efficacy (%)', fontsize=20)
     plt.yticks(index[0:-1], vaccine_name_unique, fontsize=20)
@@ -471,11 +619,12 @@ def plot_vaccine_efficacy(pd_data, save_figure=False):
     plt.ylim([-1, index_temp])
     plt.gca().invert_yaxis()
     plt.gca().yaxis.grid()
-    
+
     # Save the figure if save_figure is True
     if save_figure == True:
-        plt.savefig('RW2021_Efficacy_compare.pdf', format='pdf', bbox_inches='tight')
-    
+        plt.savefig('RW2021_Efficacy_compare.pdf',
+                    format='pdf', bbox_inches='tight')
+
     # Display the plot
     plt.show()
 
