@@ -176,17 +176,26 @@ def different_between_efficacy(paper_vaccine_efficacy, paper_ve_methods, RW_vacc
 
     # 'transpose' items to parallel key, value lists
     labels, data = [*zip(*efficacy_difference_dict.items())]
-    sns.violinplot(data, inner=None, cut=0, palette=palette)
+    
+    means = [data[i].mean() for i in range(len(data))]
+    medians = [np.median(data[i]) for i in range(len(data))]
+    plt.plot(range(0, len(labels)), means, '^', color='black', alpha=1, label='mean', markersize=7)
+    plt.plot(range(0, len(labels)), medians, 's', color='black', alpha=1, label='mean', markersize=7)
+    print('Means: ', means)
+    print('Medians: ', medians)
+
+    sns.violinplot(data, inner=None, cut=0, palette=palette, scale='width')
     sns.swarmplot(data=data, color='black', alpha=0.5, size=4)
-    plt.fill_betweenx(y=[-4.1, 6.1], x1=-0.5, x2=2.5, color='gray', alpha=0.2)
+    plt.fill_betweenx(y=[-15, 20], x1=-0.5, x2=2.5, color='gray', alpha=0.2)
     plt.xlim(-0.5, 4.5)
-    plt.ylim([-4.1, 6.1])
+    plt.ylim([-15, 18])
     plt.xticks(range(0, len(labels)), labels)
     plt.xticks(rotation=15, ha='right')
     plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
     plt.grid()
     plt.ylabel(
         'Difference between original vaccine efficacy and \n vaccine efficacy estimated by relative risk (%)')
+    plt.legend(loc='lower right', numpoints=1)
     if save_fig == True:
         plt.savefig('Difference_efficacy_RW2022.pdf')
     return fig
@@ -282,6 +291,8 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
     RW_upper_bound_tmp = RW_upper_bound[remove_map]
 
     # Lower
+    paper_lower_bound_tmp[paper_lower_bound_tmp<0] = 0
+    RW_lower_bound_tmp[RW_lower_bound_tmp<0] = 0
     paper_lower_lengths = paper_vaccine_efficacy_tmp - paper_lower_bound_tmp
     RW_lower_lengths = RW_vaccine_efficacy_tmp - RW_lower_bound_tmp
     unique_paper_ci_methods = np.unique(paper_ci_methods_tmp)
@@ -299,19 +310,19 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
     labels = [label.replace('*', '') for label in labels]
     color_palette = [
         ci_method_color_dict[label.strip('*')] for label in labels]
-    sns.violinplot(data, inner=None, cut=0, palette=color_palette)
+    sns.violinplot(data, inner='quart', cut=0, palette=color_palette, scale='width')
     sns.swarmplot(data=data, color='black', alpha=0.5, size=6)
     plt.xticks(range(0, len(labels)), labels)
     plt.xticks(rotation=30, ha='right')
     plt.grid()
     plt.ylabel('Difference between original lower bound \n and lower bound estimated by \n Poisson regression with robust error variance (%)')
-    plt.ylim([-10, 10])
+    plt.ylim([-100, 30])
     # if time_to_event:
     #     plt.fill_between(np.arange(-0.5, len(labels)+0.5), -10, 10, color='gray', alpha=0.2)
     plt.xlim(-0.5, len(labels)-0.5)
     plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
-    plt.fill_between(np.arange(-0.5, shaded_x_range+0.5), -
-                     10, 10, color='gray', alpha=0.2)
+    plt.fill_between(np.arange(-0.5, shaded_x_range+0.5), 
+                     -100, 30, color='gray', alpha=0.2)
     if save_fig == True:
         plt.savefig(f'Difference_lower_RW2022.pdf')
 
@@ -343,6 +354,8 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
 
     # upper
     fig1 = plt.figure(figsize=(10, 5))
+    # paper_upper_bound_tmp[paper_upper_bound_tmp>100] = 100
+    # RW_upper_bound_tmp[RW_upper_bound_tmp>100] = 100
     paper_upper_lengths = paper_vaccine_efficacy_tmp - paper_upper_bound_tmp
     RW_upper_lengths = RW_vaccine_efficacy_tmp - RW_upper_bound_tmp
     unique_paper_ci_methods = np.unique(paper_ci_methods_tmp)
@@ -352,6 +365,7 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
         paper_upper_lengths_tmp = paper_upper_lengths[upper_index_map]
         RW_upper_lengths_tmp = RW_upper_lengths[upper_index_map]
         upper_difference = paper_upper_lengths_tmp - RW_upper_lengths_tmp
+        # print(i, upper_difference)
         upper_difference_dict[paper_ci_method] = upper_difference
     shaded_x_range = len(upper_difference_dict)
 
@@ -395,19 +409,21 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
     labels = [label.replace('*', '') for label in labels]
     color_palette = [
         ci_method_color_dict[label.strip('*')] for label in labels]
-    sns.violinplot(data, inner=None, cut=0, palette=color_palette)
+    sns.violinplot(data, inner='quart', cut=0, palette=color_palette, scale='width')
     sns.swarmplot(data=data, color='black', alpha=0.5, size=6)
     plt.xticks(range(0, len(labels)), labels)
     plt.xticks(rotation=30, ha='right')
     plt.grid()
     plt.ylabel('Difference between original upper bound \n and upper bound estimated by \n Poisson regression with robust error variance (%)')
-    plt.ylim([-10, 10])
+    plt.ylim([-10, 20])
     # if time_to_event:
     #     plt.fill_between(np.arange(-0.5, len(labels)+0.5), -10, 10, color='gray', alpha=0.2)
     plt.xlim(-0.5, len(labels)-0.5)
     plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
-    plt.fill_between(np.arange(-0.5, shaded_x_range+0.5), -
-                     10, 10, color='gray', alpha=0.2)
+    # plt.fill_between(np.arange(-0.5, shaded_x_range+0.5), -
+    #                  10, 10, color='gray', alpha=0.2)
+    plt.fill_between(np.arange(-0.5, shaded_x_range+0.5), 
+                     -10, 20, color='gray', alpha=0.2)
     if save_fig == True:
         plt.savefig(f'Difference_upper_RW2022.pdf')
 
@@ -522,12 +538,13 @@ def distance_between_lb_to_threshold(paper_vaccine_efficacy, paper_lower_bound,
     plt.axhline(y=50, color='black', linestyle='--')
     plt.axhline(y=30, color='black', linestyle='--')
     sns.violinplot(x='CI_method', y='lb_difference', hue='type',
-                   data=data, inner=None,  palette=['#2ca25f', '#e5f5f9'], split=True, cut=0)
+                   data=data, inner='quart',  palette=['#2ca25f', '#e5f5f9'], split=True, cut=0)
     sns.swarmplot(x='CI_method', y='lb_difference', data=data,
                   color='black', alpha=0.5, size=4)
     plt.fill_betweenx(y=[-10, 100], x1=-0.5, x2=8.5, color='gray', alpha=0.2)
     plt.ylim(0, 100)
-    plt.xlim(-0.5, 12.5)
+    plt.xlim(-0.5, 13.5)
+    # plt.xlim(-0.5, 12.5)
     plt.xticks(rotation=30, ha='right')
     plt.yticks(np.arange(0, 101, 10))
     plt.ylabel('Vaccine efficacy lower bound (%)', fontsize=16)
@@ -536,7 +553,8 @@ def distance_between_lb_to_threshold(paper_vaccine_efficacy, paper_lower_bound,
     for i in range(len(xticks_tmp)):
         if xticks_tmp[i][0] == 'z':
             xticks_tmp[i] = xticks_tmp[i][1:]
-    plt.xticks(np.arange(0, 13, 1), xticks_tmp)
+    plt.xticks(np.arange(0, len(xticks_tmp), 1), xticks_tmp)
+    # plt.xticks(np.arange(0, 13, 1), xticks_tmp)
     plt.grid()
 
     means = data.groupby(['CI_method', 'type'])['lb_difference'].mean()
@@ -550,7 +568,7 @@ def distance_between_lb_to_threshold(paper_vaccine_efficacy, paper_lower_bound,
         else:
             plt.plot(idx+0.15, mean, '^', color='k', alpha=0.5)
             idx += 1
-    plt.legend(loc='lower right', numpoints=1)
+    plt.legend(loc='lower left', numpoints=1)
     if save_fig:
         plt.savefig('lb_threshold.pdf')
     plt.show()
