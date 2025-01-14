@@ -228,6 +228,8 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
     RW_lower_bound = RW_lower_bound[sort_index]
     RW_upper_bound = RW_upper_bound[sort_index]
 
+    
+
     ###########################
     # Time to event lower bound
     ###########################
