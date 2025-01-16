@@ -4,6 +4,9 @@ Companion code to the study "A meta-analysis of phase III clinical trials of app
 Employing statistical methods such as relative risk and Poisson regression with robust error variance, this project enables the comparison of recalculated vaccine efficacies against the initially reported values. 
 
 
+## Data
+- **vaccine_details.xlsx**: Raw vaccine efficacy dataset, sourced from NordlingLab_Project_COVID-19_200320/Data/Vaccine and Variants/Dipesh2021_vaccine_details.xlsx. The source file can be accessed at [this Google Drive link](https://docs.google.com/spreadsheets/d/1p3gdzuhVsDdvlWrBaU_jgm1hE1yLUiXC/edit?usp=sharing&ouid=109431143134707429715&rtpof=true&sd=true).
+
 ## Setup Environment
 
 ### Requirements
