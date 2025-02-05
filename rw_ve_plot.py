@@ -318,7 +318,8 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
     plt.xticks(rotation=30, ha='right')
     plt.grid()
     plt.ylabel('Difference between original lower bound \n and lower bound estimated by \n Poisson regression with robust error variance (%)')
-    plt.ylim([-100, 30])
+    # plt.ylim([-100, 30])
+    plt.ylim([-10, 10])
     # if time_to_event:
     #     plt.fill_between(np.arange(-0.5, len(labels)+0.5), -10, 10, color='gray', alpha=0.2)
     plt.xlim(-0.5, len(labels)-0.5)
@@ -417,7 +418,8 @@ def distance_between_CI(paper_vaccine_efficacy, paper_lower_bound,
     plt.xticks(rotation=30, ha='right')
     plt.grid()
     plt.ylabel('Difference between original upper bound \n and upper bound estimated by \n Poisson regression with robust error variance (%)')
-    plt.ylim([-10, 20])
+    # plt.ylim([-10, 20])
+    plt.ylim([-5, 5])
     # if time_to_event:
     #     plt.fill_between(np.arange(-0.5, len(labels)+0.5), -10, 10, color='gray', alpha=0.2)
     plt.xlim(-0.5, len(labels)-0.5)
@@ -539,14 +541,14 @@ def distance_between_lb_to_threshold(paper_vaccine_efficacy, paper_lower_bound,
     fig, ax = plt.subplots(figsize=(16, 7))
     plt.axhline(y=50, color='black', linestyle='--')
     plt.axhline(y=30, color='black', linestyle='--')
-    sns.violinplot(x='CI_method', y='lb_difference', hue='type',
+    sns.violinplot(x='CI_method', y='lb_difference', hue='type', scale='width',
                    data=data, inner='quart',  palette=['#2ca25f', '#e5f5f9'], split=True, cut=0)
     sns.swarmplot(x='CI_method', y='lb_difference', data=data,
                   color='black', alpha=0.5, size=4)
     plt.fill_betweenx(y=[-10, 100], x1=-0.5, x2=8.5, color='gray', alpha=0.2)
     plt.ylim(0, 100)
-    plt.xlim(-0.5, 13.5)
-    # plt.xlim(-0.5, 12.5)
+    # plt.xlim(-0.5, 13.5)
+    plt.xlim(-0.5, 12.5)
     plt.xticks(rotation=30, ha='right')
     plt.yticks(np.arange(0, 101, 10))
     plt.ylabel('Vaccine efficacy lower bound (%)', fontsize=16)
@@ -836,6 +838,7 @@ def plot_vaccine_efficacy_ave_group_for_original(pd_data, save_figure=False):
             vaccine_ave_table_temp.vaccine.unique())
         index = np.array([0])
         index_temp = 0
+        efficacy_all = np.array([])
         # Forcing bars distance the same
         plt.figure(figsize=(10, len(vaccine_ave_table_temp.vaccine)*0.35))
 
@@ -866,6 +869,7 @@ def plot_vaccine_efficacy_ave_group_for_original(pd_data, save_figure=False):
 
             # To numpy
             efficacy = efficacy.to_numpy()
+            efficacy_all = np.append(efficacy_all, efficacy)
             lower_bounds = lower_bounds.to_numpy()
             upper_bounds = upper_bounds.to_numpy()
 
@@ -882,7 +886,7 @@ def plot_vaccine_efficacy_ave_group_for_original(pd_data, save_figure=False):
                                                 max(0, upper_bounds[j]-efficacy[j])]]).T, fmt='o', color=palette[len(index)-1])
                 index_temp += 1
             index = np.append(index, index_temp)
-
+        print('Max efficacy: ', np.max(efficacy_all), 'Min efficacy: ', np.min(efficacy_all))
         plt.plot([30, 30], [-1, index_temp], 'k--')
         plt.plot([50, 50], [-1, index_temp], 'k--')
         plt.xlabel('Efficacy (%)', fontsize=20)
